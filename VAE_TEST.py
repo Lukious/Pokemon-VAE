@@ -10,9 +10,11 @@ import os,glob
 
 folder_path = './pokemon-dataset/images/MatrixPreprocessed'
 counter = 0
+filename_list = []
 
 for filename in os.listdir(folder_path):
     counter = counter + 1
+    filename_list.append(filename[:-4])
     print(filename)
     temp = np.load(folder_path+'/'+filename)
     temp = temp.reshape((1,28,28))
@@ -21,4 +23,4 @@ for filename in os.listdir(folder_path):
         Pokemon_data = Pokemon_data.reshape((1,28,28))
     else:
         Pokemon_data = np.concatenate((Pokemon_data, temp),axis = 0)
-    print("DONE")
+print("DONE")
