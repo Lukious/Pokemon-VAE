@@ -1,13 +1,10 @@
+
 # -*- coding: utf-8 -*-
 """
 Created on Sun Jan  5 21:49:50 2020
 @author: Lukious
 """
 
-from keras import metrics
-from keras import layers
-from keras.models import Model
-from keras import backend as K
 import numpy as np
 import os,glob
 
@@ -24,4 +21,4 @@ for filename in os.listdir(folder_path):
         Pokemon_data = Pokemon_data.reshape((1,28,28))
     else:
         Pokemon_data = np.concatenate((Pokemon_data, temp),axis = 0)
-print("DONE")
+    print("DONE")
