@@ -12,19 +12,19 @@ folder_path = './pokemon-dataset/images/images'
 
 def PNG_case(filename):
     im = Image.open(folder_path+'/'+filename)
-    size = (28, 28)
+    size = (56, 56)
     im.thumbnail(size)  
     im.save('./pokemon-dataset/images/Preprocessed/'+filename[:-4]+'.png')
 
 def JPG_case(filename):
     im = Image.open(folder_path+'/'+filename)
-    size = (28, 28)
+    size = (56, 56)
     im.thumbnail(size)  
     im.save('./pokemon-dataset/images/Preprocessed/'+filename[:-4]+'.png')
 
 def Image2Matrix(filename):
     im = Image.open(folder_path+'/'+filename)
-    size = (28, 28)
+    size = (56, 56)
     im.thumbnail(size)  
     ImageMatrix = numpy.asarray(im.convert('L'))
     numpy.save('./pokemon-dataset/images/MatrixPreprocessed/'+filename[:-4],ImageMatrix)

@@ -15,6 +15,7 @@ from keras import backend as K
 import matplotlib.pyplot as plt
 import os
 from keras import objectives
+import tensorflow as tf
 
 def sampling(args):
     z_mean, z_log_var = args
@@ -26,6 +27,8 @@ def sampling(args):
 
 def main():
     
+    leaky_relu = tf.nn.leaky_relu
+
     folder_path = './pokemon-dataset/images/MatrixPreprocessed'
     counter = 0
 
@@ -33,10 +36,10 @@ def main():
         counter = counter + 1
         print(filename)
         temp = np.load(folder_path+'/'+filename)
-        temp = temp.reshape((1,28,28))
+        temp = temp.reshape((1,56,56))
         if counter == 1:
             Pokemon_data = temp
-            Pokemon_data = Pokemon_data.reshape((1,28,28))
+            Pokemon_data = Pokemon_data.reshape((1,56,56))
         else:
             Pokemon_data = np.concatenate((Pokemon_data, temp),axis = 0)
 
@@ -44,24 +47,24 @@ def main():
 
     #(X_train,Y_train), (X_test,Y_test) = mnist.load_data()
     X_train = Pokemon_data
-    row = 28
-    col = 28
+    row = 56
+    col = 56
     dim = row * col
     X_train = np.reshape(X_train,[-1,dim]).astype('float32')/255
         
     input_shape = (dim,)
     intermediate_dim = 512
-    batch_size = 128
+    batch_size = 64
     latent_dim = 2 # mean and standard deviation!
-    epochs = 30
+    epochs = 128
     
     # VAE model = autoencoder (encoder + decoder)
     inputs = Input(shape=input_shape,name='encoder_input')
     # train q(z|x) -> approximation
-    x = Dense(intermediate_dim,activation='relu')(inputs)
-    x = Dense(intermediate_dim,activation='relu')(x)
+    x = Dense(intermediate_dim,activation=leaky_relu)(inputs)
+    x = Dense(intermediate_dim,activation=leaky_relu)(x)
     z_mean = Dense(latent_dim,name='z_mean')(x)
-    z_log_var = Dense(latent_dim,name='z_log_var')(x)
+    z_log_var = Dense(latent_dim,name='z_log_var')(x)   
     
     # use reparameterization trick to push the sampling out as input
     # z_mean+sqrt(var)*eps , Adding zero-mean Gaussian noise
@@ -69,22 +72,22 @@ def main():
     
     encoder = Model(inputs,[z_mean,z_log_var,z],name='encoder')
     encoder.summary()
-    plot_model(encoder,to_file='vae_mlp_encoder.jpg',show_shapes=True)
+    plot_model(encoder,to_file='vae_pokemon_encoder.jpg',show_shapes=True)
     
     # decoder
     # p(x|z)
     latent_inputs = Input(shape=(latent_dim,),name='z_sampling')
-    x = Dense(intermediate_dim,activation='relu')(latent_inputs)
-    x = Dense(intermediate_dim,activation='relu')(x)
+    x = Dense(intermediate_dim,activation=leaky_relu)(latent_inputs)
+    x = Dense(intermediate_dim,activation=leaky_relu)(x)
     outputs = Dense(dim,activation='sigmoid')(x) # 0~1
     
     decoder = Model(latent_inputs,outputs,name='decoder')
     decoder.summary()
-    plot_model(decoder,to_file='vae_mlp_decoder.jpg',show_shapes=True)
+    plot_model(decoder,to_file='vae_pokemon_decoder.jpg',show_shapes=True)
     
     # VAE
     outputs = decoder(encoder(inputs)[2])
-    vae = Model(inputs,outputs,name='vae_mlp')
+    vae = Model(inputs,outputs,name='vae_pokemon')
 
     models = (encoder,decoder)
     data = (X_train)
@@ -97,31 +100,24 @@ def main():
     
     vae.compile(optimizer='adam',loss=vae_loss)
     vae.summary()
-    plot_model(vae,to_file='vae_mlp.jpg',show_shapes=True)
+    plot_model(vae,to_file='vae_mlp_pokemon.jpg',show_shapes=True)
     vae.fit(X_train,X_train,epochs=epochs,batch_size=batch_size)
-    vae.save_weights('vae_mlp_mnist.h5')
+    vae.save_weights('vae_mlp_pokemon.h5')
     
     plot_results(models,data,batch_size=batch_size,model_name='vae_mlp')
 
 def plot_results(models,
                  data,
-                 batch_size=128,
+                 batch_size=64,
                  model_name="vae_pokemon"):
-    """Plots labels and MNIST digits as function of 2-dim latent vector
-    # Arguments:
-        models (tuple): encoder and decoder models
-        data (tuple): test data and label
-        batch_size (int): prediction batch size
-        model_name (string): which model is using this function
-    """
 
     encoder, decoder = models
     os.makedirs(model_name, exist_ok=True)
 
     filename = os.path.join(model_name, "pokemon_over_latent.png")
     # display a 30x30 2D manifold of digits
-    n = 30
-    digit_size = 28
+    n = 36
+    digit_size = 56
     figure = np.zeros((digit_size * n, digit_size * n))
     # linearly spaced coordinates corresponding to the 2D plot
     # of digit classes in the latent space
