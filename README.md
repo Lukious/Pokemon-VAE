@@ -9,7 +9,7 @@ conda install graphviz
 ```
 
 
-# Pokemon-AutoEncoder
+# Pokemon-Variational autoencoder
 VAE base Pokemon-AutoEncoder Project
 
 VAE를 활용한 포켓몬데이터에 대한 VAE를 통한 Generating 프로젝트입니다.
@@ -51,3 +51,5 @@ Adapt VAE Model
 <img src="./Pokemon_VAE/Figure_3.png" width="400">  <img src="./Pokemon_VAE/Figure_4.png" width="400">
 
 
+### Appendix
+- https://github.com/Lukious/2019BCLxMI-RU_WinterStudy  [#3 AE]
